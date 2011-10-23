@@ -8,11 +8,11 @@
   var addrMarker;
   var addrMarkerImage = 'http://derekeder.com/images/icons/blue-pushpin.png';
   
-  var fusionTableId = 303470; //replace this with the ID of your fusion table
+  var fusionTableId = 1933240; //replace this with the ID of your fusion table
   
   var searchRadius = 805; //in meters ~ 1/2 mile
-  var recordName = "result";
-  var recordNamePlural = "results";
+  var recordName = "clinic";
+  var recordNamePlural = "clinics";
   var searchrecords;
   var records = new google.maps.FusionTablesLayer(fusionTableId);
   
@@ -45,7 +45,7 @@
 		var address = $("#txtSearchAddress").val();
 		searchRadius = $("#ddlRadius").val();
 		
-		searchStr = "SELECT geometry FROM " + fusionTableId + " WHERE geometry not equal to ''";
+		searchStr = "SELECT Address FROM " + fusionTableId + " WHERE Address not equal to ''";
 		
 		// because the geocode function does a callback, we have to handle it in both cases - when they search for and address and when they dont
 		if (address != "")
@@ -70,7 +70,7 @@
 				});
 				drawSearchRadiusCircle(results[0].geometry.location);
 				
-				searchStr += " AND ST_INTERSECTS(geometry, CIRCLE(LATLNG" + results[0].geometry.location.toString() + "," + searchRadius + "))";
+				searchStr += " AND ST_INTERSECTS(Address, CIRCLE(LATLNG" + results[0].geometry.location.toString() + "," + searchRadius + "))";
 				
 				//get using all filters
 				//console.log(searchStr);
@@ -168,7 +168,7 @@
 	
 	function displayCount(searchStr) {
 	  //set the query using the parameter
-	  searchStr = searchStr.replace("SELECT geometry ","SELECT Count() ");
+	  searchStr = searchStr.replace("SELECT Address ","SELECT Count() ");
 	  
 	  //set the callback function
 	  getFTQuery(searchStr).send(displaySearchCount);
