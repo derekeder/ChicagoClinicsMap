@@ -34,6 +34,11 @@
     map = new google.maps.Map(document.getElementById("map_canvas"),myOptions);
 	
 	$("#ddlRadius").val("805");
+	
+	$("#cbType1").attr("checked", "checked");
+	$("#cbType2").attr("checked", "checked");
+	$("#cbType3").attr("checked", "checked");
+	
 	searchrecords = null;
 	$("#txtSearchAddress").val("");
 	doSearch();
@@ -45,7 +50,22 @@
 		var address = $("#txtSearchAddress").val();
 		searchRadius = $("#ddlRadius").val();
 		
+		var type1 = $("#cbType1").is(':checked');
+		var type2 = $("#cbType2").is(':checked');
+		var type3 = $("#cbType3").is(':checked');
+		
 		searchStr = "SELECT Location FROM " + fusionTableId + " WHERE Location not equal to ''";
+		
+		//by type
+		var searchType = "'Type' IN ('',";
+        if (type1)
+			searchType += "'NHC',";
+		if (type2)
+			searchType += "'WIC',";
+		if (type3)
+			searchType += "'MHC',";
+
+        searchStr += " AND " + searchType.slice(0, searchType.length - 1) + ")";
 		
 		// because the geocode function does a callback, we have to handle it in both cases - when they search for and address and when they dont
 		if (address != "")
@@ -90,7 +110,7 @@
 		else
 		{
 			//get using all filters
-			//console.log(searchStr);
+			console.log(searchStr);
 			searchrecords = new google.maps.FusionTablesLayer(fusionTableId, {
 				query: searchStr}
 				);
