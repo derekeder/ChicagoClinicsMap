@@ -19,6 +19,9 @@
 	jQuery(document).ready(function() {
         initialize();
         jQuery(".hint").ezpz_hint();
+        $(':checkbox').click(function(){
+			doSearch();
+		});
     });
 
 </script>
@@ -32,14 +35,14 @@
 				<div id='search'>
 
 					<h4>Clinic type</h4>
-					<ul class='options-h'>
+					<ul class='options-v'>
 						<li><label for='cbType1'><input type='checkbox' id='cbType1' />Neighborhood clinic</label></li>
-						<li><label for='cbType2'><input type='checkbox' id='cbType2' />Women, Infants & Children (WIC)</label></li>
-						<li><label for='cbType3'><input type='checkbox' id='cbType3' />Mental Health clinic</label></li>
+						<li><label for='cbType2'><input type='checkbox' id='cbType2' />Mental Health clinic</label></li>
+						<li><label for='cbType3'><input type='checkbox' id='cbType3' />Women, Infants & Children (WIC)</label></li>
 					</ul>
 
 					<div class='input-addr'>
-						<h4>Address</h4>
+						<h4>Address <span>(<a href='#' onclick="findMe(); return false;">find me</a>)</span></h4>
 						<p><input class='txt hint' type="text" title="Enter an address or an intersection &hellip;" id="txtSearchAddress" onkeydown="if (event.keyCode == 13) document.getElementById('btnSearch').click()"/></p>
 					</div>
 					<div class='input-radius'>
@@ -55,7 +58,7 @@
 					</div>
 					<div class='clear'></div>
 					<input class="btn" type="button" id="btnSearch" value="Search" onclick="doSearch();" />
-					<span class='mute'><a href='#' onclick="initialize();">reset map</a></span>
+					<span><a href='#' onclick="initialize();">reset map</a></span>
 					<span id='resultCount'>&nbsp;</span>
 					<hr />
 					<p class='mute'>View the raw data in Fusion Tables <a href='http://www.google.com/fusiontables/DataSource?dsrcid=1938254'>here</a>. 

@@ -57,13 +57,21 @@
 		searchStr = "SELECT Location FROM " + fusionTableId + " WHERE Location not equal to ''";
 		
 		//by type
-		var searchType = "'Type' IN ('',";
-        if (type1)
-			searchType += "'NHC',";
-		if (type2)
-			searchType += "'WIC',";
-		if (type3)
-			searchType += "'MHC',";
+		//this is a big mess - would be so much easier if FT supported 'OR' operators. 
+		//would ideally do 'Type Flag' CONTAINS 'WIC' OR 'Type Flag' CONTAINS 'NHC' … etc
+		var searchType = "'Type Flag' IN (-1,";
+        if (type1) //NHC
+			searchType += "1,";
+		if (type2) //MHC
+			searchType += "2,";
+		if (type3) //WIC
+			searchType += "3,";
+		if (type1 && type3) //NHC, WIC
+			searchType += "4,";
+		if (type2 && type3) //MHC, WIC
+			searchType += "5,";
+		if (type1 && type2 && type3) //NHC, MHC, WIC
+			searchType += "6,";
 
         searchStr += " AND " + searchType.slice(0, searchType.length - 1) + ")";
 		
@@ -93,7 +101,7 @@
 				searchStr += " AND ST_INTERSECTS(Location, CIRCLE(LATLNG" + results[0].geometry.location.toString() + "," + searchRadius + "))";
 				
 				//get using all filters
-				//console.log(searchStr);
+				console.log(searchStr);
 				searchrecords = new google.maps.FusionTablesLayer(fusionTableId, {
 					query: searchStr}
 					);
@@ -183,13 +191,14 @@
 	
 	function getFTQuery(sql) {
 		var queryText = encodeURIComponent(sql);
+		console.log('http://www.google.com/fusiontables/gvizdata?tq='  + queryText);
 		return new google.visualization.Query('http://www.google.com/fusiontables/gvizdata?tq='  + queryText);
 	}
 	
 	function displayCount(searchStr) {
 	  //set the query using the parameter
 	  searchStr = searchStr.replace("SELECT Location ","SELECT Count() ");
-	  
+	  console.log(searchStr);
 	  //set the callback function
 	  getFTQuery(searchStr).send(displaySearchCount);
 	}
