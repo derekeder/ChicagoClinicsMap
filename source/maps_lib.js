@@ -54,7 +54,7 @@
 		var type2 = $("#cbType2").is(':checked');
 		var type3 = $("#cbType3").is(':checked');
 		
-		searchStr = "SELECT Location FROM " + fusionTableId + " WHERE Location not equal to ''";
+		searchStr = "SELECT Location FROM " + fusionTableId + " WHERE ";
 		
 		//by type
 		//this is a big mess - would be so much easier if FT supported 'OR' operators. 
@@ -73,14 +73,14 @@
 		if (type1 && type2 && type3) //NHC, MHC, WIC
 			searchType += "6,";
 
-        searchStr += " AND " + searchType.slice(0, searchType.length - 1) + ")";
+        searchStr += " " + searchType.slice(0, searchType.length - 1) + ")";
 		
 		// because the geocode function does a callback, we have to handle it in both cases - when they search for and address and when they dont
 		if (address != "")
 		{
 			if (address.toLowerCase().indexOf("chicago") == -1)
 				address = address + " chicago";
-
+			_trackClickEventWithGA("Search", "Chicago Clinics", address);
 			geocoder.geocode( { 'address': address}, function(results, status) 
 			{
 			  if (status == google.maps.GeocoderStatus.OK) 
@@ -101,7 +101,7 @@
 				searchStr += " AND ST_INTERSECTS(Location, CIRCLE(LATLNG" + results[0].geometry.location.toString() + "," + searchRadius + "))";
 				
 				//get using all filters
-				console.log(searchStr);
+				//console.log(searchStr);
 				searchrecords = new google.maps.FusionTablesLayer(fusionTableId, {
 					query: searchStr}
 					);
@@ -118,7 +118,7 @@
 		else
 		{
 			//get using all filters
-			console.log(searchStr);
+			//console.log(searchStr);
 			searchrecords = new google.maps.FusionTablesLayer(fusionTableId, {
 				query: searchStr}
 				);
@@ -147,12 +147,18 @@
 	}
 
  function findMe() {
-	  // Try W3C Geolocation (Preferred)
 	  var foundLocation;
 	  
-	  if(navigator.geolocation) {
+	  if(navigator.geolocation) { // Try W3C Geolocation (Preferred)
 	    navigator.geolocation.getCurrentPosition(function(position) {
 	      foundLocation = new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+	      addrFromLatLng(foundLocation);
+	    }, null);
+	  } 
+	  else if (google.gears) { // Try Google Gears Geolocation
+	    var geo = google.gears.factory.create('beta.geolocation');
+	    geo.getCurrentPosition(function(position) {
+	      foundLocation = new google.maps.LatLng(position.latitude,position.longitude);
 	      addrFromLatLng(foundLocation);
 	    }, null);
 	  }
@@ -191,14 +197,11 @@
 	
 	function getFTQuery(sql) {
 		var queryText = encodeURIComponent(sql);
-		console.log('http://www.google.com/fusiontables/gvizdata?tq='  + queryText);
+		//console.log('http://www.google.com/fusiontables/gvizdata?tq='  + queryText);
 		return new google.visualization.Query('http://www.google.com/fusiontables/gvizdata?tq='  + queryText);
 	}
 	
 	function displayCount(searchStr) {
-	  //set the query using the parameter
-	  searchStr = searchStr.replace("SELECT Location ","SELECT Count() ");
-	  console.log(searchStr);
 	  //set the callback function
 	  getFTQuery(searchStr).send(displaySearchCount);
 	}
@@ -206,7 +209,7 @@
 	function displaySearchCount(response) {
 	  var numRows = 0;
 	  if (response.getDataTable().getNumberOfRows() > 0)
-	  	numRows = parseInt(response.getDataTable().getValue(0, 0));
+	  	numRows = response.getDataTable().getNumberOfRows(); //doing this the old way since Count() wasn't working with this query (?)
 	  var name = recordNamePlural;
 	  if (numRows == 1)
 		name = recordName;
