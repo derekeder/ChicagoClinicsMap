@@ -39,6 +39,9 @@
 	$("#cbType2").attr("checked", "checked");
 	$("#cbType3").attr("checked", "checked");
 	
+	$("#cbOpen").attr("checked", "checked");
+	$("#cbClosed").attr("checked", "checked");
+	
 	searchrecords = null;
 	$("#txtSearchAddress").val("");
 	doSearch();
@@ -50,11 +53,21 @@
 		var address = $("#txtSearchAddress").val();
 		searchRadius = $("#ddlRadius").val();
 		
+		var isOpen = $("#cbOpen").is(':checked');
+		var isClosed = $("#cbClosed").is(':checked');
+		
 		var type1 = $("#cbType1").is(':checked');
 		var type2 = $("#cbType2").is(':checked');
 		var type3 = $("#cbType3").is(':checked');
 		
 		searchStr = "SELECT Location FROM " + fusionTableId + " WHERE ";
+		
+		
+		var searchOpen = "'Status Flag' IN (-1,";
+    if (isOpen) searchOpen += "1,";
+		if (isClosed) searchOpen += "0,";
+
+    searchStr += " " + searchOpen.slice(0, searchOpen.length - 1) + ") AND ";
 		
 		//by type
 		//this is a big mess - would be so much easier if FT supported 'OR' operators. 
